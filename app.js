@@ -36,9 +36,16 @@ const storage = path.join(__dirname,'..','data','database.sqlite');
 
 const sequelize = new Sequelize({
   dialect:'sqlite',
-  dialectModule:require('better-sqlite3'),
+  dialectModule: Database,
   storage,
   logging:false
+});
+
+
+
+const Task = sequelize.define('Task',{
+  name:{type: DataTypes.STRING,allowNull:false},
+  description:{type: DataTypes.TEXT}
 });
 
 async function syncDB(){
@@ -46,11 +53,6 @@ async function syncDB(){
 }
 
 syncDB();
-
-const Task = sequelize.define('Task',{
-  name:{type: DataTypes.STRING,allowNull:false},
-  description:{type: DataTypes.TEXT}
-});
 
 /* GET home page. */
 app.get('/', function (req, res, next) {
