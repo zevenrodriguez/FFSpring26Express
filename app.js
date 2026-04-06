@@ -7,7 +7,7 @@ var hbs = require('hbs');//added
 const fs = require('fs');
 const { Sequelize } = require('sequelize');
 const { DataTypes } = require('sequelize');
-const Database = require('better-sqlite3');
+
 
 // var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
@@ -32,15 +32,17 @@ hbs.registerPartials(path.join(__dirname, 'views', 'partials'))
 hbs.registerPartial('partial_name', 'partial value');
 
 //Setup out database
-const storage = path.join(__dirname,'..','data','database.sqlite');
+const dataDirectory = path.join(__dirname, 'data');
+const storage = path.join(dataDirectory, 'database.sqlite');
+
+//Ensure the data directory exists
+fs.mkdirSync(dataDirectory, { recursive: true });
 
 const sequelize = new Sequelize({
-  dialect:'sqlite',
-  dialectModule: Database,
+  dialect: 'sqlite',
   storage,
   logging:false
 });
-
 
 
 const Task = sequelize.define('Task',{
@@ -52,7 +54,7 @@ async function syncDB(){
   await sequelize.sync();
 }
 
-syncDB();
+syncDB().catch(console.error);
 
 /* GET home page. */
 app.get('/', function (req, res, next) {
@@ -105,7 +107,7 @@ app.get('/addtask',function(req,res,next){
 app.post('/addtask', async function(req,res,next){
   try{
     const created = await Task.create({name:req.body.name, description: req.body.description});
-    res.json(req.body);
+    res.json(created);
   }catch(err){
     next(err);
   }
