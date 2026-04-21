@@ -1,0 +1,26 @@
+<div id='myContainer1'></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/addons/p5.sound.min.js"></script>
+<script>
+  var pollData = {{{ pollJSON }}};
+  console.log(pollData);
+  function setup() {
+    // Create screen reader accessible description
+    textOutput();
+    let myCanvas1 = createCanvas(600, 400);
+    myCanvas1.parent('myContainer1');
+
+  }
+
+  function draw() {
+
+    for (let data of pollData) {
+      fill(data.color);
+      let circleSize = data.amount * 10;
+      circleX = random(0, width);
+      circleY = random(0, height);
+      circle(circleX, circleY, circleSize);
+    }
+  }
+
+</script>

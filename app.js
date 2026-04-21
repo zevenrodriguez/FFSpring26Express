@@ -44,10 +44,28 @@ const sequelize = new Sequelize({
   logging:false
 });
 
+//once added you'll have to delete the database.sqlite file to reset the database and create the new tables with the new models
+const List = sequelize.define('List', {
+  name: { type: DataTypes.STRING, allowNull: false },
+});
 
 const Task = sequelize.define('Task',{
   name:{type: DataTypes.STRING,allowNull:false},
   description:{type: DataTypes.TEXT}
+});
+
+// 1. A List can contain multiple Tasks
+List.hasMany(Task, {
+  onDelete: 'CASCADE'   // If a List is deleted, delete its Tasks
+});
+
+// 2. A Task belongs to a single List
+Task.belongsTo(List);
+
+// Define Poll model (kept inline for simplicity)
+const Poll = sequelize.define('Poll', {
+  color: { type: DataTypes.STRING, allowNull: false },
+  amount: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 }
 });
 
 async function syncDB(){
@@ -112,6 +130,102 @@ app.post('/addtask', async function(req,res,next){
     next(err);
   }
 });
+
+app.get('/tasks', async function(req,res,next){
+  try{
+    const tasks = await Task.findAll({order:[['createdAt','DESC']]});
+    //res.json(tasks);
+    res.render('tasks',{title:'Tasks', tasks});
+  }catch(err){
+    next(err);
+  }
+});
+
+app.get('/tasks/:id/delete', async function(req,res,next){
+  try{
+    await Task.destroy({where:{id:req.params.id}});
+    res.redirect('/tasks');
+  }catch(err){
+    next(err);
+  }
+});
+
+app.get('/addlist', function (req, res, next) {
+  res.render('addlist', { title: 'Add List' });
+});
+
+
+
+app.post('/addlist', async function (req, res, next) {
+  console.log('Received addlist POST:', req.body);
+  try {
+        // req.body is now the clean JSON object
+        const list = await List.create(req.body, {
+            include: [Task]
+        });
+        res.json(list);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* GET single-chart route */
+app.get('/chart', async function (req, res, next) {
+  //res.render('charts', { title: 'Chart' });
+  try {
+    const poll = await Poll.findAll({ order: [['createdAt', 'DESC']] });
+
+
+    // render an HTML page with the tasks
+    res.render('chart', { title: 'Chart', poll, pollJSON: JSON.stringify(poll) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* POST chart form handler: increment existing color entry or create it, then redirect to /chart */
+app.post('/chart', async function (req, res, next) {
+  try {
+    const color = req.body.color;
+    if (!color) return res.redirect('/chart');
+    // Find existing entry for this color
+    const existing = await Poll.findOne({ where: { color } });
+    if (existing) {
+      // increment and save
+      //existing.amount = (existing.amount || 0) + 1;
+      if (existing.amount) {
+        // If 'existing.amount' exists and is not 0 (it's "truthy")
+        existing.amount = existing.amount + 1;
+      } else {
+        // If 'existing.amount' is missing (undefined) or 0 (it's "falsy")
+        existing.amount = 1;
+      }
+      await existing.save();
+    } else {
+      // create new entry with amount 1
+      await Poll.create({ color, amount: 1 });
+    }
+    // redirect back to the chart page
+    res.redirect('/chart');
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get('/p5js', async function (req, res, next) {
+  //res.render('p5js', { title: 'p5js' });
+  try {
+    const poll = await Poll.findAll({ order: [['createdAt', 'DESC']] });
+
+
+    // render an HTML page with the tasks
+    res.render('p5js', { title: 'p5js', pollJSON: JSON.stringify(poll) });
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 app.get('/:name', function (req, res, next) {
   console.log(req);

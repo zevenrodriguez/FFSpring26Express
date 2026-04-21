@@ -1,0 +1,60 @@
+<form action="/chart" method="post">
+  <label for="color">Color:</label>
+  <select id="color" name="color" required>
+    <option value="red">Red</option>
+    <option value="blue">Blue</option>
+    <option value="yellow">Yellow</option>
+  </select>
+ 
+  <button type="submit">Submit</button>
+</form>
+<div>
+  
+  {{#each poll}}
+    <p>{{this.color}}: {{this.amount}}</p>
+  {{/each}} 
+  
+  </div>
+<div>
+  <canvas id="barChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+ 
+  var pollData = {{{ pollJSON }}};
+  console.log(pollData);
+  let colors = [];
+  let amounts = [];
+  for (let i = 0; i < pollData.length; i++) {
+    colors.push(pollData[i].color);
+    amounts.push(pollData[i].amount);
+  }
+  console.log(colors);
+  console.log(amounts);
+
+const ctx = document.getElementById('barChart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: colors,
+      datasets: [{
+        label: '# of Votes',
+        data: amounts,
+        backgroundColor: colors,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+ 
+</script>
+  
