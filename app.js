@@ -34,8 +34,8 @@ hbs.registerPartials(path.join(__dirname, 'views', 'partials'))
 hbs.registerPartial('partial_name', 'partial value');
 
 //Setup out database
-// const dataDirectory = path.join(__dirname, 'data');
-const dataDirectory = process.env.DATA_DIR || path.join(__dirname, 'data');
+ const dataDirectory = path.join(__dirname, 'data');
+//const dataDirectory = process.env.DATA_DIR || path.join(__dirname, 'data');
 const storage = path.join(dataDirectory, 'database.sqlite');
 
 //Ensure the data directory exists
