@@ -7,9 +7,6 @@ var hbs = require('hbs');//added
 const fs = require('fs');
 const { Sequelize } = require('sequelize');
 const { DataTypes } = require('sequelize');
-var dotenv = require('dotenv').config();
-
-
 
 
 // var indexRouter = require('./routes/index');
@@ -36,32 +33,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 hbs.registerPartials(path.join(__dirname, 'views', 'partials'))
 hbs.registerPartial('partial_name', 'partial value');
 
-//sqlite setup
-// //Setup out database
-//  const dataDirectory = path.join(__dirname, 'data');
-// const storage = path.join(dataDirectory, 'database.sqlite');
+//Setup out database
+ const dataDirectory = path.join(__dirname, 'data');
+const storage = path.join(dataDirectory, 'database.sqlite');
 
-// //Ensure the data directory exists
-// fs.mkdirSync(dataDirectory, { recursive: true });
+//Ensure the data directory exists
+fs.mkdirSync(dataDirectory, { recursive: true });
 
-// const sequelize = new Sequelize({
-//   dialect: 'sqlite',
-//   storage,
-//   logging:false
-// });
-
-//postgres setup
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: 'postgres',
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  },
-  logging: false
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage,
+  logging:false
 });
-
 
 //once added you'll have to delete the database.sqlite file to reset the database and create the new tables with the new models
 const List = sequelize.define('List', {
@@ -174,16 +157,6 @@ app.get('/addlist', function (req, res, next) {
 });
 
 
-app.get('/lists/all', async function (req, res, next) {
-  try {
-    const lists = await List.findAll({ include: [Task], order: [['createdAt', 'DESC']] });
-    res.json(lists);
-  } catch (err) {
-    next(err);
-  }
-});
-
-
 
 app.post('/addlist', async function (req, res, next) {
   console.log('Received addlist POST:', req.body);
@@ -198,8 +171,6 @@ app.post('/addlist', async function (req, res, next) {
         res.status(500).json({ error: err.message });
     }
 });
-
-
 
 /* GET single-chart route */
 app.get('/chart', async function (req, res, next) {
@@ -256,8 +227,6 @@ app.get('/p5js', async function (req, res, next) {
     next(err);
   }
 });
-
-
 
 
 app.get('/:name', function (req, res, next) {
