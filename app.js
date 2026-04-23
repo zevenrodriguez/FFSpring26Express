@@ -9,7 +9,9 @@ const { Sequelize } = require('sequelize');
 const { DataTypes } = require('sequelize');
 var dotenv = require('dotenv').config();
 
-
+const dbUrl = process.env.NODE_ENV === 'production'
+  ? process.env.DATABASE_URL_PROD
+  : process.env.DATABASE_URL_LOCAL;
 
 
 
@@ -53,7 +55,7 @@ hbs.registerPartial('partial_name', 'partial value');
 // });
 
 //postgres setup
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
+const sequelize = new Sequelize(dbUrl, {
   dialect: 'postgres',
   dialectOptions: {
     ssl: {
