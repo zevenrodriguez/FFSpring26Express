@@ -7,10 +7,9 @@ var hbs = require('hbs');//added
 const fs = require('fs');
 const { Sequelize } = require('sequelize');
 const { DataTypes } = require('sequelize');
+var dotenv = require('dotenv').config();
 
-var dotenv = require('dotenv').config({
-  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env'
-});
+
 
 
 
